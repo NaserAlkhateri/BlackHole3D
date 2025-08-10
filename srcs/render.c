@@ -6,7 +6,7 @@
 /*   By: amersha <amersha@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/10 14:35:22 by amersha           #+#    #+#             */
-/*   Updated: 2025/08/10 15:20:52 by amersha          ###   ########.fr       */
+/*   Updated: 2025/08/10 16:27:35 by amersha          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@ void	put_pixel(t_img *im, int x, int y, int color)
 	*(unsigned int *)dst = (unsigned int)color;
 }
 
-static void	draw_background(t_mlx *m)
+static void	draw_bg(t_mlx *m)
 {
 	int	y;
 	int	x;
@@ -32,9 +32,8 @@ static void	draw_background(t_mlx *m)
 	while (y < WIN_H)
 	{
 		x = 0;
-		if (y < WIN_H / 2)
-			color = m->scn->ceil_c.rgb;
-		else
+		color = m->scn->ceil_c.rgb;
+		if (y >= WIN_H / 2)
 			color = m->scn->floor_c.rgb;
 		while (x < WIN_W)
 		{
@@ -49,6 +48,7 @@ void	render_frame(t_mlx *m)
 {
 	if (!m)
 		return ;
-	draw_background(m);
+	draw_bg(m);
+	raycast_render(m);
 	mlx_put_image_to_window(m->mlx, m->win, m->img.img, 0, 0);
 }

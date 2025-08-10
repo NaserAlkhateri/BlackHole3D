@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   cub3d.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nalkhate <nalkhate@student.42.fr>          +#+  +:+       +#+        */
+/*   By: amersha <amersha@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/09 16:14:33 by nalkhate          #+#    #+#             */
-/*   Updated: 2025/08/10 15:53:50 by nalkhate         ###   ########.fr       */
+/*   Updated: 2025/08/10 16:31:34 by amersha          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,16 +19,28 @@
 # include <unistd.h>
 # include <stdlib.h>
 # include <fcntl.h>
-# include <stdio.h>
 
 # define WIN_W 800
 # define WIN_H 600
 
-/* keycodes: works on both Linux(X11) and macOS */
-# define KEY_ESC_L 65307
-# define KEY_ESC_M 53
+/* macOS keycodes */
+# define KEY_ESC_M    53
+# define KEY_LEFT_M   123
+# define KEY_RIGHT_M  124
+# define KEY_W_M      13
+# define KEY_A_M      0
+# define KEY_S_M      1
+# define KEY_D_M      2
 
-/* declare GNL if you keep it inside libft.a */
+/* X11 keycodes */
+# define KEY_ESC_L    65307
+# define KEY_LEFT_L   65361
+# define KEY_RIGHT_L  65363
+# define KEY_W_L      119
+# define KEY_A_L      97
+# define KEY_S_L      115
+# define KEY_D_L      100
+
 char	*get_next_line(int fd);
 
 typedef struct s_color
@@ -54,6 +66,19 @@ typedef struct s_scene
 {
 	t_color	floor_c;
 	t_color	ceil_c;
+	char	*tex_no;
+	char	*tex_so;
+	char	*tex_we;
+	char	*tex_ea;
+	char	**map;
+	int		map_w;
+	int		map_h;
+	double	px;
+	double	py;
+	double	dirx;
+	double	diry;
+	double	plx;
+	double	ply;
 }	t_scene;
 
 typedef struct s_mlx
@@ -61,11 +86,21 @@ typedef struct s_mlx
 	void	*mlx;
 	void	*win;
 	t_img	img;
+	t_img	no;
+	t_img	so;
+	t_img	we;
+	t_img	ea;
 	t_scene	*scn;
 }	t_mlx;
 
-/* parsing */
+/* parsing / map */
 int		parse_scene(const char *path, t_scene *scn);
+int		map_accumulate(char **acc, char *line);
+int		map_finalize(t_scene *scn, char *acc);
+
+/* textures */
+int		load_textures(t_mlx *m, t_scene *scn);
+void	free_textures(t_mlx *m);
 
 /* mlx / render / hooks */
 int		init_mlx(t_mlx *m, t_scene *scn);
@@ -75,5 +110,11 @@ void	put_pixel(t_img *im, int x, int y, int color);
 void	set_hooks(t_mlx *m);
 int		on_key(int key, t_mlx *m);
 int		on_close(t_mlx *m);
+
+/* raycaster */
+void	raycast_render(t_mlx *m);
+
+/* controls */
+int		handle_key(t_mlx *m, int key);
 
 #endif

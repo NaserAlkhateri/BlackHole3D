@@ -6,7 +6,7 @@
 /*   By: amersha <amersha@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/10 14:34:19 by amersha           #+#    #+#             */
-/*   Updated: 2025/08/10 15:14:48 by amersha          ###   ########.fr       */
+/*   Updated: 2025/08/10 16:31:59 by amersha          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,9 +14,10 @@
 
 int	on_key(int key, t_mlx *m)
 {
-	(void)m;
 	if (key == KEY_ESC_L || key == KEY_ESC_M)
 		destroy_and_exit(m, 0);
+	if (handle_key(m, key))
+		render_frame(m);
 	return (0);
 }
 
