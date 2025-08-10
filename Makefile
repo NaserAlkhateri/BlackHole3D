@@ -1,41 +1,79 @@
-NAME = cub3D
+# **************************************************************************** #
+#                                   cub3D                                       #
+# **************************************************************************** #
 
-CFLAGS = -Wall -Werror -Wextra
+# Program
+NAME        := cub3D
 
-CC = cc
+# Compiler & Flags (subject requires cc and these flags)
+CC          := cc
+CFLAGS      := -Wall -Wextra -Werror
 
-SRCSDIR = srcs
+# Dirs
+INCDIR      := include
+SRCDIR      := srcs
+OBJDIR      := objs
+LIBFT_DIR   := $(SRCDIR)/libft
+MLX_DIR     := $(SRCDIR)/mlx
 
-OBJSDIR = objs
+# Libraries
+LIBFT_A     := $(LIBFT_DIR)/libft.a
+MLX_A       := $(MLX_DIR)/libmlx.a
 
-MLXDIR = srcs/mlx
+# Sources (add new .c files here as we progress)
+SRC_FILES   := main.c init_mlx.c render.c hooks.c parse_scene.c
+SRCS        := $(addprefix $(SRCDIR)/,$(SRC_FILES))
+OBJS        := $(addprefix $(OBJDIR)/,$(SRC_FILES:.c=.o))
 
-LIBFTDIR = srcs/libft
+# OS-specific MLX link flags
+UNAME_S     := $(shell uname -s)
+ifeq ($(UNAME_S),Darwin)
+	MLX_LDFLAGS := -framework OpenGL -framework AppKit
+else
+	MLX_LDFLAGS := -lXext -lX11 -lm
+endif
 
-LIBFT = $(LIBFTDIR)/libft.a
-
-SOURCES = $(SRCSDIR)/main.c
-
-OBJECTS = $(SOURCES:$(SRCSDIR)/%.c=$(OBJSDIR)/%.o)
-
+# Default rule
 all: $(NAME)
 
-$(OBJSDIR)/%.o: $(SRCSDIR)/%.c
-	mkdir -p $(OBJSDIR)
-	$(CC) $(CFLAGS) -c $< -o $@
+# Link final binary
+$(NAME): $(LIBFT_A) $(MLX_A) $(OBJDIR) $(OBJS)
+	$(CC) $(CFLAGS) $(OBJS) \
+		-I$(INCDIR) \
+		-L$(LIBFT_DIR) -lft \
+		-L$(MLX_DIR) -lmlx \
+		$(MLX_LDFLAGS) \
+		-o $@
 
-$(NAME): $(OBJECTS)
-	make -C $(LIBFTDIR)
-	make -C $(MLXDIR)
-	$(CC) $(OBJECTS) $(CFLAGS) -I$(MLXDIR) -L$(MLXDIR) -lmlx -framework OpenGL -framework AppKit -o $(NAME) $(LIBFT)
+# Objects dir
+$(OBJDIR):
+	mkdir -p $(OBJDIR)
 
+# Compile .c -> /objs/.o
+$(OBJDIR)/%.o: $(SRCDIR)/%.c $(INCDIR)/cub3d.h
+	$(CC) $(CFLAGS) -I$(INCDIR) -I$(LIBFT_DIR) -I$(MLX_DIR) -c $< -o $@
+
+# Build libft using its own Makefile (subject requires this flow)
+$(LIBFT_A):
+	$(MAKE) -C $(LIBFT_DIR)
+
+# Build MiniLibX from sources
+$(MLX_A):
+	$(MAKE) -C $(MLX_DIR)
+
+# Cleaning
 clean:
-	rm -rf $(OBJSDIR)
-	make clean -C $(LIBFTDIR)
-	make clean -C $(MLXDIR)
+	$(MAKE) -C $(LIBFT_DIR) clean
+	$(MAKE) -C $(MLX_DIR) clean
+	rm -rf $(OBJDIR)
 
 fclean: clean
+	$(MAKE) -C $(LIBFT_DIR) fclean || true
 	rm -f $(NAME)
-	rm -f $(LIBFT)
 
 re: fclean all
+
+# Subject asks to have a 'bonus' rule even if empty now
+bonus: all
+
+.PHONY: all clean fclean re bonus
