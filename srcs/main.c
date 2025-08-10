@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: amersha <amersha@student.42.fr>            +#+  +:+       +#+        */
+/*   By: nalkhate <nalkhate@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/10 14:35:34 by amersha           #+#    #+#             */
-/*   Updated: 2025/08/10 15:14:54 by amersha          ###   ########.fr       */
+/*   Updated: 2025/08/10 15:58:13 by nalkhate         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,5 +36,6 @@ int	main(int ac, char **av)
 	set_hooks(&m);
 	mlx_loop(m.mlx);
 	destroy_and_exit(&m, 0);
+
 	return (0);
 }
