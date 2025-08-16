@@ -6,7 +6,7 @@
 /*   By: amersha <amersha@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/10 14:34:38 by amersha           #+#    #+#             */
-/*   Updated: 2025/08/10 16:27:14 by amersha          ###   ########.fr       */
+/*   Updated: 2025/08/16 12:59:00 by amersha          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,7 @@ int	init_mlx(t_mlx *m, t_scene *scn)
 	m->mlx = mlx_init();
 	if (!m->mlx)
 		return (1);
+	/* NOTE: no texture loading here anymore */
 	m->win = mlx_new_window(m->mlx, WIN_W, WIN_H, "cub3D");
 	if (!m->win)
 		return (destroy_and_exit(m, 1), 1);
@@ -40,8 +41,6 @@ int	init_mlx(t_mlx *m, t_scene *scn)
 			&m->img.line_len, &m->img.endian);
 	m->img.w = WIN_W;
 	m->img.h = WIN_H;
-	if (load_textures(m, scn))
-		return (destroy_and_exit(m, 1), 1);
 	return (0);
 }
 

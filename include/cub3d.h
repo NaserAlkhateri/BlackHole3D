@@ -6,7 +6,7 @@
 /*   By: amersha <amersha@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/09 16:14:33 by nalkhate          #+#    #+#             */
-/*   Updated: 2025/08/10 16:31:34 by amersha          ###   ########.fr       */
+/*   Updated: 2025/08/16 13:33:04 by amersha          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,12 +94,15 @@ typedef struct s_mlx
 }	t_mlx;
 
 /* parsing / map */
-int		parse_scene(const char *path, t_scene *scn);
+const char	*parse_scene(const char *path, t_scene *scn);
 int		map_accumulate(char **acc, char *line);
 int		map_finalize(t_scene *scn, char *acc);
 
+const char *validate_map(t_scene *scn);
+void	init_player_from_map(t_scene *s);
+
 /* textures */
-int		load_textures(t_mlx *m, t_scene *scn);
+const char	*load_textures(t_mlx *m, t_scene *scn);
 void	free_textures(t_mlx *m);
 
 /* mlx / render / hooks */

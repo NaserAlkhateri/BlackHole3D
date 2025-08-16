@@ -6,7 +6,7 @@
 /*   By: amersha <amersha@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/10 14:35:28 by amersha           #+#    #+#             */
-/*   Updated: 2025/08/10 16:27:59 by amersha          ###   ########.fr       */
+/*   Updated: 2025/08/16 12:55:57 by amersha          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,35 +85,51 @@ static int	parse_texline(char *ln, t_scene *scn)
 		p += 2;
 		while (*p == ' ' || *p == '\t')
 			p++;
-		rstrip(p); /* <- important: remove newline/spaces from path */
+		rstrip(p);
 		if (!*p)
-			return (1);
-		if (!ft_strncmp(ln, "NO", 2) && !scn->tex_no)
+			return (-1); /* empty path -> error */
+		if (!ft_strncmp(ln, "NO", 2))
+		{
+			if (scn->tex_no) return (-1); /* duplicate */
 			scn->tex_no = ft_strdup(p);
-		else if (!ft_strncmp(ln, "SO", 2) && !scn->tex_so)
+			return (0);
+		}
+		if (!ft_strncmp(ln, "SO", 2))
+		{
+			if (scn->tex_so) return (-1);
 			scn->tex_so = ft_strdup(p);
-		else if (!ft_strncmp(ln, "WE", 2) && !scn->tex_we)
+			return (0);
+		}
+		if (!ft_strncmp(ln, "WE", 2))
+		{
+			if (scn->tex_we) return (-1);
 			scn->tex_we = ft_strdup(p);
-		else if (!ft_strncmp(ln, "EA", 2) && !scn->tex_ea)
+			return (0);
+		}
+		if (!ft_strncmp(ln, "EA", 2))
+		{
+			if (scn->tex_ea) return (-1);
 			scn->tex_ea = ft_strdup(p);
-		return (0);
+			return (0);
+		}
 	}
 	return (1);
 }
 
-int	parse_scene(const char *path, t_scene *scn)
+const char	*parse_scene(const char *path, t_scene *scn)
 {
 	int		fd;
 	char	*ln;
 	int		got_f;
 	int		got_c;
 	char	*acc;
+	int		r;
 
 	if (!path || !scn)
-		return (1);
+		return ("Invalid arguments");
 	fd = open(path, O_RDONLY);
 	if (fd < 0)
-		return (1);
+		return ("Cannot open file");
 	got_f = 0;
 	got_c = 0;
 	acc = NULL;
@@ -123,22 +139,48 @@ int	parse_scene(const char *path, t_scene *scn)
 	scn->tex_ea = NULL;
 	while ((ln = get_next_line(fd)))
 	{
-		if (!parse_texline(ln, scn))
+		r = parse_texline(ln, scn);
+		if (r == 0)
 			;
-		else if (!got_f && !ft_strncmp(ln, "F ", 2)
-			&& !parse_rgb(ln + 2, &scn->floor_c))
+		else if (r == -1)
+			return (free(ln), close(fd), free(acc), "Duplicate/invalid texture identifier");
+		else if (!got_f && !ft_strncmp(ln, "F ", 2))
+		{
+			if (parse_rgb(ln + 2, &scn->floor_c))
+				return (free(ln), close(fd), free(acc), "Invalid floor color");
 			got_f = 1;
-		else if (!got_c && !ft_strncmp(ln, "C ", 2)
-			&& !parse_rgb(ln + 2, &scn->ceil_c))
+		}
+		else if (!got_c && !ft_strncmp(ln, "C ", 2))
+		{
+			if (parse_rgb(ln + 2, &scn->ceil_c))
+				return (free(ln), close(fd), free(acc), "Invalid ceiling color");
 			got_c = 1;
+		}
 		else
 			map_accumulate(&acc, ln);
 		free(ln);
 	}
 	close(fd);
 	if (!scn->tex_no || !scn->tex_so || !scn->tex_we || !scn->tex_ea)
-		return (free(acc), 1);
+		return (free(acc), "Missing texture identifier (NO/SO/WE/EA)");
+	if (!got_f)
+		return (free(acc), "Missing floor color (F)");
+	if (!got_c)
+		return (free(acc), "Missing ceiling color (C)");
+	/* EARLY file-existence check to avoid opening window then crashing */
+	fd = open(scn->tex_no, O_RDONLY);
+	if (fd < 0) return (free(acc), "Cannot open texture file: NO");
+	close(fd);
+	fd = open(scn->tex_so, O_RDONLY);
+	if (fd < 0) return (free(acc), "Cannot open texture file: SO");
+	close(fd);
+	fd = open(scn->tex_we, O_RDONLY);
+	if (fd < 0) return (free(acc), "Cannot open texture file: WE");
+	close(fd);
+	fd = open(scn->tex_ea, O_RDONLY);
+	if (fd < 0) return (free(acc), "Cannot open texture file: EA");
+	close(fd);
 	if (map_finalize(scn, acc))
-		return (1);
-	return (!(got_f && got_c));
+		return ("Map parsing failed");
+	return (NULL);
 }

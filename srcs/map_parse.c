@@ -6,7 +6,7 @@
 /*   By: amersha <amersha@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/10 22:45:00 by amersha           #+#    #+#             */
-/*   Updated: 2025/08/10 16:27:00 by amersha          ###   ########.fr       */
+/*   Updated: 2025/08/16 11:38:01 by amersha          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -108,4 +108,59 @@ int	map_finalize(t_scene *scn, char *acc)
 		free(rows[i++]);
 	free(rows);
 	return (0);
+}
+
+const char *validate_map(t_scene *scn)
+{
+    int player_count = 0;
+    int y, x;
+
+    if (!scn->map)
+        return ("Map is not present");
+
+    for (y = 0; y < scn->map_h; y++) {
+        for (x = 0; x < scn->map_w; x++) {
+            char c = scn->map[y][x];
+            if (c != ' ' && c != '0' && c != '1' &&
+                c != 'N' && c != 'S' && c != 'E' && c != 'W')
+                return ("Invalid character in map");
+            if (c == 'N' || c == 'S' || c == 'E' || c == 'W')
+                player_count++;
+        }
+    }
+
+    if (player_count == 0)
+        return ("No player start position");
+    if (player_count > 1)
+        return ("Multiple player start positions");
+
+    for (x = 0; x < scn->map_w; x++) {
+        if (scn->map[0][x] != '1')
+            return ("Map not closed at top");
+        if (scn->map[scn->map_h-1][x] != '1')
+            return ("Map not closed at bottom");
+    }
+
+    for (y = 0; y < scn->map_h; y++) {
+        if (scn->map[y][0] != '1')
+            return ("Map not closed on left");
+        if (scn->map[y][scn->map_w-1] != '1')
+            return ("Map not closed on right");
+    }
+
+    for (y = 1; y < scn->map_h - 1; y++) {
+        for (x = 1; x < scn->map_w - 1; x++) {
+            if (scn->map[y][x] == '0' || scn->map[y][x] == 'N' || 
+                scn->map[y][x] == 'S' || scn->map[y][x] == 'E' || 
+                scn->map[y][x] == 'W') {
+                if (scn->map[y-1][x] == ' ' || 
+                    scn->map[y+1][x] == ' ' || 
+                    scn->map[y][x-1] == ' ' || 
+                    scn->map[y][x+1] == ' ')
+                    return ("Map has interior hole");
+            }
+        }
+    }
+
+    return (NULL);
 }

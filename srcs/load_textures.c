@@ -6,7 +6,7 @@
 /*   By: amersha <amersha@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/10 19:05:00 by amersha           #+#    #+#             */
-/*   Updated: 2025/08/10 16:27:09 by amersha          ###   ########.fr       */
+/*   Updated: 2025/08/16 12:44:45 by amersha          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,17 +21,19 @@ static int	load_one(void *mlx, t_img *im, char *path)
 	return (0);
 }
 
-int	load_textures(t_mlx *m, t_scene *scn)
+const char	*load_textures(t_mlx *m, t_scene *scn)
 {
+	if (!m || !scn)
+		return ("Invalid arguments");
 	if (load_one(m->mlx, &m->no, scn->tex_no))
-		return (1);
+		return ("Cannot open texture file: NO");
 	if (load_one(m->mlx, &m->so, scn->tex_so))
-		return (1);
+		return ("Cannot open texture file: SO");
 	if (load_one(m->mlx, &m->we, scn->tex_we))
-		return (1);
+		return ("Cannot open texture file: WE");
 	if (load_one(m->mlx, &m->ea, scn->tex_ea))
-		return (1);
-	return (0);
+		return ("Cannot open texture file: EA");
+	return (NULL);
 }
 
 void	free_textures(t_mlx *m)
