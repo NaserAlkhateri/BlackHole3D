@@ -158,6 +158,14 @@ const char	*parse_scene(const char *path, t_scene *scn)
 				return (free(ln), close(fd), free(acc), "Invalid ceiling color");
 			got_c = 1;
 		}
+		else if (got_c && !ft_strncmp(ln, "C ", 2))
+		{
+			return (free(ln), close(fd), free(acc), "Ceiling is duplicated!");
+		}
+		else if (got_f && !ft_strncmp(ln, "F ", 2))
+		{
+			return (free(ln), close(fd), free(acc), "Floor is duplicated!");
+		}
 		else
 			map_accumulate(&acc, ln);
 		free(ln);
