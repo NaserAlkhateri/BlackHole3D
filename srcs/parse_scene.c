@@ -127,6 +127,8 @@ const char	*parse_scene(const char *path, t_scene *scn)
 
 	if (!path || !scn)
 		return ("Invalid arguments");
+	if (!ft_strnstr(path, ".cub", ft_strlen(path)))
+		return ("only *.cub files are allowed");
 	fd = open(path, O_RDONLY);
 	if (fd < 0)
 		return ("Cannot open file");
