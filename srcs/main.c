@@ -6,7 +6,7 @@
 /*   By: amersha <amersha@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/10 14:35:34 by amersha           #+#    #+#             */
-/*   Updated: 2025/08/16 13:27:02 by amersha          ###   ########.fr       */
+/*   Updated: 2025/08/21 23:23:42 by amersha          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,12 +34,10 @@ int	main(int ac, char **av)
 	if (err)
 		return (error_msg(err));
 	
-	// Validate map structure
 	err = validate_map(&scn);
 	if (err)
 		return (error_msg(err));
 	
-	// Initialize player position and direction
 	init_player_from_map(&scn);
 	
 	if (init_mlx(&m, &scn))
@@ -47,7 +45,10 @@ int	main(int ac, char **av)
 	
 	err = load_textures(&m, &scn);
 	if (err)
-		return (destroy_and_exit(&m, 1), error_msg(err));
+	{
+		destroy_and_exit(&m, 1);
+		return (error_msg(err));
+	}
 	
 	render_frame(&m);
 	set_hooks(&m);

@@ -6,7 +6,7 @@
 /*   By: amersha <amersha@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/10 14:35:28 by amersha           #+#    #+#             */
-/*   Updated: 2025/08/16 12:55:57 by amersha          ###   ########.fr       */
+/*   Updated: 2025/08/21 23:35:58 by amersha          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,10 +87,10 @@ static int	parse_texline(char *ln, t_scene *scn)
 			p++;
 		rstrip(p);
 		if (!*p)
-			return (-1); /* empty path -> error */
+			return (-1);
 		if (!ft_strncmp(ln, "NO", 2))
 		{
-			if (scn->tex_no) return (-1); /* duplicate */
+			if (scn->tex_no) return (-1);
 			scn->tex_no = ft_strdup(p);
 			return (0);
 		}
@@ -124,6 +124,7 @@ const char	*parse_scene(const char *path, t_scene *scn)
 	int		got_c;
 	char	*acc;
 	int		r;
+	int		map_acc_result;
 
 	if (!path || !scn)
 		return ("Invalid arguments");
@@ -145,50 +146,105 @@ const char	*parse_scene(const char *path, t_scene *scn)
 		if (r == 0)
 			;
 		else if (r == -1)
-			return (free(ln), close(fd), free(acc), "Duplicate/invalid texture identifier");
+		{
+			free(ln);
+			close(fd);
+			free(acc);
+			return ("Duplicate/invalid texture identifier");
+		}
 		else if (!got_f && !ft_strncmp(ln, "F ", 2))
 		{
 			if (parse_rgb(ln + 2, &scn->floor_c))
-				return (free(ln), close(fd), free(acc), "Invalid floor color");
+			{
+				free(ln);
+				close(fd);
+				free(acc);
+				return ("Invalid floor color");
+			}
 			got_f = 1;
 		}
 		else if (!got_c && !ft_strncmp(ln, "C ", 2))
 		{
 			if (parse_rgb(ln + 2, &scn->ceil_c))
-				return (free(ln), close(fd), free(acc), "Invalid ceiling color");
+			{
+				free(ln);
+				close(fd);
+				free(acc);
+				return ("Invalid ceiling color");
+			}
 			got_c = 1;
 		}
 		else if (got_c && !ft_strncmp(ln, "C ", 2))
 		{
-			return (free(ln), close(fd), free(acc), "Ceiling is duplicated!");
+			free(ln);
+			close(fd);
+			free(acc);
+			return ("Ceiling is duplicated!");
 		}
 		else if (got_f && !ft_strncmp(ln, "F ", 2))
 		{
-			return (free(ln), close(fd), free(acc), "Floor is duplicated!");
+			free(ln);
+			close(fd);
+			free(acc);
+			return ("Floor is duplicated!");
 		}
 		else
-			map_accumulate(&acc, ln);
+		{
+			map_acc_result = map_accumulate(&acc, ln);
+			if (map_acc_result == 1)
+			{
+				free(ln);
+				close(fd);
+				free(acc);
+				return ("Invalid content in map or empty line within map");
+			}
+		}
 		free(ln);
 	}
 	close(fd);
 	if (!scn->tex_no || !scn->tex_so || !scn->tex_we || !scn->tex_ea)
-		return (free(acc), "Missing texture identifier (NO/SO/WE/EA)");
+	{
+		free(acc);
+		return ("Missing texture identifier (NO/SO/WE/EA)");
+	}
 	if (!got_f)
-		return (free(acc), "Missing floor color (F)");
+	{
+		free(acc);
+		return ("Missing floor color (F)");
+	}
 	if (!got_c)
-		return (free(acc), "Missing ceiling color (C)");
+	{
+		free(acc);
+		return ("Missing ceiling color (C)");
+	}
 	/* EARLY file-existence check to avoid opening window then crashing */
 	fd = open(scn->tex_no, O_RDONLY);
-	if (fd < 0) return (free(acc), "Cannot open texture file: NO");
+	if (fd < 0)
+	{
+		free(acc);
+		return ("Cannot open texture file: NO");
+	}
 	close(fd);
 	fd = open(scn->tex_so, O_RDONLY);
-	if (fd < 0) return (free(acc), "Cannot open texture file: SO");
+	if (fd < 0)
+	{
+		free(acc);
+		return ("Cannot open texture file: SO");
+	}
 	close(fd);
 	fd = open(scn->tex_we, O_RDONLY);
-	if (fd < 0) return (free(acc), "Cannot open texture file: WE");
+	if (fd < 0)
+	{
+		free(acc);
+		return ("Cannot open texture file: WE");
+	}
 	close(fd);
 	fd = open(scn->tex_ea, O_RDONLY);
-	if (fd < 0) return (free(acc), "Cannot open texture file: EA");
+	if (fd < 0)
+	{
+		free(acc);
+		return ("Cannot open texture file: EA");
+	}
 	close(fd);
 	if (map_finalize(scn, acc))
 		return ("Map parsing failed");

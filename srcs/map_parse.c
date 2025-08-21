@@ -6,7 +6,7 @@
 /*   By: amersha <amersha@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/10 22:45:00 by amersha           #+#    #+#             */
-/*   Updated: 2025/08/16 11:38:01 by amersha          ###   ########.fr       */
+/*   Updated: 2025/08/21 23:29:05 by amersha          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,12 +28,30 @@ int	map_accumulate(char **acc, char *line)
 	char	*joined;
 
 	i = 0;
-	while (line[i] && (line[i] == ' ' || line[i] == '\t'))
+	while (line[i] && (line[i] == ' ' || line[i] == '\t' || line[i] == '\n'))
 		i++;
+	
+	// If line is empty after trimming
 	if (!line[i])
+	{
+		// If we've already started accumulating map data, this is an error
+		if (*acc != NULL)
+			return (1);
+		// Otherwise, it's just an empty line before the map starts
 		return (0);
+	}
+	
+	// Check if this line contains valid map characters
 	if (!is_map_char(line[i]))
+	{
+		// If we've already started accumulating map data, this is an error
+		if (*acc != NULL)
+			return (1);
+		// Otherwise, it's just a non-map line before the map starts
 		return (0);
+	}
+	
+	// If we get here, this is a valid map line
 	tmp = ft_strjoin(line, "\n");
 	if (!tmp)
 		return (1);
@@ -135,16 +153,16 @@ const char *validate_map(t_scene *scn)
         return ("Multiple player start positions");
 
     for (x = 0; x < scn->map_w; x++) {
-        if (scn->map[0][x] != '1')
+        if (scn->map[0][x] != ' ' && scn->map[0][x] != '1')
             return ("Map not closed at top");
-        if (scn->map[scn->map_h-1][x] != '1')
+        if (scn->map[scn->map_h-1][x] != ' ' && scn->map[scn->map_h-1][x] != '1')
             return ("Map not closed at bottom");
     }
 
     for (y = 0; y < scn->map_h; y++) {
-        if (scn->map[y][0] != '1')
+        if (scn->map[y][0] != ' ' && scn->map[y][0] != '1')
             return ("Map not closed on left");
-        if (scn->map[y][scn->map_w-1] != '1')
+        if (scn->map[y][scn->map_w-1] != ' ' && scn->map[y][scn->map_w-1] != '1')
             return ("Map not closed on right");
     }
 
