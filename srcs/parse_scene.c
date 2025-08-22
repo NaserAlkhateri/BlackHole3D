@@ -125,6 +125,7 @@ const char	*parse_scene(const char *path, t_scene *scn)
 	char	*acc;
 	int		r;
 	int		map_acc_result;
+	int		in_map;
 
 	if (!path || !scn)
 		return ("Invalid arguments");
@@ -135,6 +136,7 @@ const char	*parse_scene(const char *path, t_scene *scn)
 		return ("Cannot open file");
 	got_f = 0;
 	got_c = 0;
+	in_map = 0;
 	acc = NULL;
 	scn->tex_no = NULL;
 	scn->tex_so = NULL;
@@ -152,7 +154,7 @@ const char	*parse_scene(const char *path, t_scene *scn)
 			free(acc);
 			return ("Duplicate/invalid texture identifier");
 		}
-		else if (!got_f && !ft_strncmp(ln, "F ", 2))
+		else if (!in_map && !got_f && !ft_strncmp(ln, "F ", 2))
 		{
 			if (parse_rgb(ln + 2, &scn->floor_c))
 			{
@@ -163,7 +165,7 @@ const char	*parse_scene(const char *path, t_scene *scn)
 			}
 			got_f = 1;
 		}
-		else if (!got_c && !ft_strncmp(ln, "C ", 2))
+		else if (!in_map && !got_c && !ft_strncmp(ln, "C ", 2))
 		{
 			if (parse_rgb(ln + 2, &scn->ceil_c))
 			{
@@ -174,14 +176,14 @@ const char	*parse_scene(const char *path, t_scene *scn)
 			}
 			got_c = 1;
 		}
-		else if (got_c && !ft_strncmp(ln, "C ", 2))
+		else if (!in_map && got_c && !ft_strncmp(ln, "C ", 2))
 		{
 			free(ln);
 			close(fd);
 			free(acc);
 			return ("Ceiling is duplicated!");
 		}
-		else if (got_f && !ft_strncmp(ln, "F ", 2))
+		else if (!in_map && got_f && !ft_strncmp(ln, "F ", 2))
 		{
 			free(ln);
 			close(fd);
@@ -190,7 +192,7 @@ const char	*parse_scene(const char *path, t_scene *scn)
 		}
 		else
 		{
-			map_acc_result = map_accumulate(&acc, ln);
+			map_acc_result = map_accumulate(&acc, ln, &in_map);
 			if (map_acc_result == 1)
 			{
 				free(ln);

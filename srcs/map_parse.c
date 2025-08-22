@@ -21,7 +21,7 @@ static int	is_map_char(char c)
 	return (0);
 }
 
-int	map_accumulate(char **acc, char *line)
+int	map_accumulate(char **acc, char *line, int *in_map)
 {
 	int		i;
 	char	*tmp;
@@ -50,7 +50,7 @@ int	map_accumulate(char **acc, char *line)
 		// Otherwise, it's just a non-map line before the map starts
 		return (0);
 	}
-	
+	*in_map = 1;
 	// If we get here, this is a valid map line
 	tmp = ft_strjoin(line, "\n");
 	if (!tmp)

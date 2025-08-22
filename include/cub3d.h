@@ -95,7 +95,7 @@ typedef struct s_mlx
 
 /* parsing / map */
 const char	*parse_scene(const char *path, t_scene *scn);
-int		map_accumulate(char **acc, char *line);
+int		map_accumulate(char **acc, char *line, int *in_map);
 int		map_finalize(t_scene *scn, char *acc);
 
 const char *validate_map(t_scene *scn);
