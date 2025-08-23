@@ -6,7 +6,7 @@
 /*   By: amersha <amersha@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/10 19:05:00 by amersha           #+#    #+#             */
-/*   Updated: 2025/08/16 12:44:45 by amersha          ###   ########.fr       */
+/*   Updated: 2025/08/23 21:49:55 by amersha          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,16 +23,45 @@ static int	load_one(void *mlx, t_img *im, char *path)
 
 const char	*load_textures(t_mlx *m, t_scene *scn)
 {
+	char	*trimmed_no;
+	char	*trimmed_so;
+	char	*trimmed_we;
+	char	*trimmed_ea;
+
 	if (!m || !scn)
 		return ("Invalid arguments");
-	if (load_one(m->mlx, &m->no, scn->tex_no))
+	
+	// Trim whitespace from texture paths
+	trimmed_no = ft_strtrim(scn->tex_no, " \t\n\r");
+	trimmed_so = ft_strtrim(scn->tex_so, " \t\n\r");
+	trimmed_we = ft_strtrim(scn->tex_we, " \t\n\r");
+	trimmed_ea = ft_strtrim(scn->tex_ea, " \t\n\r");
+	
+	if (load_one(m->mlx, &m->no, trimmed_no))
+	{
+		free(trimmed_no); free(trimmed_so); free(trimmed_we); free(trimmed_ea);
 		return ("Cannot open texture file: NO");
-	if (load_one(m->mlx, &m->so, scn->tex_so))
+	}
+	if (load_one(m->mlx, &m->so, trimmed_so))
+	{
+		free(trimmed_no); free(trimmed_so); free(trimmed_we); free(trimmed_ea);
 		return ("Cannot open texture file: SO");
-	if (load_one(m->mlx, &m->we, scn->tex_we))
+	}
+	if (load_one(m->mlx, &m->we, trimmed_we))
+	{
+		free(trimmed_no); free(trimmed_so); free(trimmed_we); free(trimmed_ea);
 		return ("Cannot open texture file: WE");
-	if (load_one(m->mlx, &m->ea, scn->tex_ea))
+	}
+	if (load_one(m->mlx, &m->ea, trimmed_ea))
+	{
+		free(trimmed_no); free(trimmed_so); free(trimmed_we); free(trimmed_ea);
 		return ("Cannot open texture file: EA");
+	}
+	
+	free(trimmed_no);
+	free(trimmed_so);
+	free(trimmed_we);
+	free(trimmed_ea);
 	return (NULL);
 }
 

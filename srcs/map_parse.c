@@ -6,7 +6,7 @@
 /*   By: amersha <amersha@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/10 22:45:00 by amersha           #+#    #+#             */
-/*   Updated: 2025/08/21 23:29:05 by amersha          ###   ########.fr       */
+/*   Updated: 2025/08/23 22:00:58 by amersha          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,10 +28,11 @@ int	map_accumulate(char **acc, char *line, int *in_map)
 	char	*joined;
 
 	i = 0;
-	while (line[i] && (line[i] == ' ' || line[i] == '\t' || line[i] == '\n'))
+	// Only skip tabs and newlines, not spaces
+	while (line[i] && (line[i] == '\t' || line[i] == '\n'))
 		i++;
 	
-	// If line is empty after trimming
+	// If line is empty after trimming tabs and newlines
 	if (!line[i])
 	{
 		// If we've already started accumulating map data, this is an error
@@ -41,18 +42,25 @@ int	map_accumulate(char **acc, char *line, int *in_map)
 		return (0);
 	}
 	
-	// Check if this line contains valid map characters
-	if (!is_map_char(line[i]))
+	// Check if this line contains valid map characters (including spaces)
+	// We need to check each character in the line, not just the first one
+	i = 0;
+	while (line[i] && line[i] != '\n')
 	{
-		// If we've already started accumulating map data, this is an error
-		if (*acc != NULL)
-			return (1);
-		// Otherwise, it's just a non-map line before the map starts
-		return (0);
+		if (!is_map_char(line[i]))
+		{
+			// If we've already started accumulating map data, this is an error
+			if (*acc != NULL)
+				return (1);
+			// Otherwise, it's just a non-map line before the map starts
+			return (0);
+		}
+		i++;
 	}
+	
 	*in_map = 1;
 	// If we get here, this is a valid map line
-	tmp = ft_strjoin(line, "\n");
+	tmp = ft_strdup(line);
 	if (!tmp)
 		return (1);
 	if (!*acc)
@@ -136,6 +144,7 @@ const char *validate_map(t_scene *scn)
     if (!scn->map)
         return ("Map is not present");
 
+    // First pass: check for invalid characters and count players
     for (y = 0; y < scn->map_h; y++) {
         for (x = 0; x < scn->map_w; x++) {
             char c = scn->map[y][x];
@@ -152,6 +161,7 @@ const char *validate_map(t_scene *scn)
     if (player_count > 1)
         return ("Multiple player start positions");
 
+    // Check map boundaries - allow spaces on boundaries
     for (x = 0; x < scn->map_w; x++) {
         if (scn->map[0][x] != ' ' && scn->map[0][x] != '1')
             return ("Map not closed at top");
@@ -166,11 +176,12 @@ const char *validate_map(t_scene *scn)
             return ("Map not closed on right");
     }
 
+    // Check for interior holes - only check non-space cells
     for (y = 1; y < scn->map_h - 1; y++) {
         for (x = 1; x < scn->map_w - 1; x++) {
-            if (scn->map[y][x] == '0' || scn->map[y][x] == 'N' || 
-                scn->map[y][x] == 'S' || scn->map[y][x] == 'E' || 
-                scn->map[y][x] == 'W') {
+            char c = scn->map[y][x];
+            if (c != ' ' && c != '1') {
+                // Check all four directions
                 if (scn->map[y-1][x] == ' ' || 
                     scn->map[y+1][x] == ' ' || 
                     scn->map[y][x-1] == ' ' || 

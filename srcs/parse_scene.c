@@ -6,7 +6,7 @@
 /*   By: amersha <amersha@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/10 14:35:28 by amersha           #+#    #+#             */
-/*   Updated: 2025/08/21 23:35:58 by amersha          ###   ########.fr       */
+/*   Updated: 2025/08/23 21:30:22 by amersha          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -198,7 +198,7 @@ const char	*parse_scene(const char *path, t_scene *scn)
 				free(ln);
 				close(fd);
 				free(acc);
-				return ("Invalid content in map or empty line within map");
+				return ("Invalid content in map");
 			}
 		}
 		free(ln);
