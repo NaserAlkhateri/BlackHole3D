@@ -6,7 +6,7 @@
 /*   By: amersha <amersha@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/11 00:35:00 by amersha           #+#    #+#             */
-/*   Updated: 2025/08/10 16:31:50 by amersha          ###   ########.fr       */
+/*   Updated: 2025/08/23 20:54:47 by amersha          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,16 +21,32 @@ static void	move_fb(t_mlx *m, double step)
 
 	nx = m->scn->px + m->scn->dirx * step;
 	ny = m->scn->py + m->scn->diry * step;
+	
+	// Check both x and y movement simultaneously to prevent diagonal clipping
 	gx = (int)nx;
-	gy = (int)m->scn->py;
-	if (gx >= 0 && gy >= 0 && gx < m->scn->map_w && gy < m->scn->map_h
-		&& m->scn->map[gy][gx] != '1' && m->scn->map[gy][gx] != ' ')
-		m->scn->px = nx;
-	gx = (int)m->scn->px;
 	gy = (int)ny;
 	if (gx >= 0 && gy >= 0 && gx < m->scn->map_w && gy < m->scn->map_h
 		&& m->scn->map[gy][gx] != '1' && m->scn->map[gy][gx] != ' ')
+	{
+		m->scn->px = nx;
 		m->scn->py = ny;
+	}
+	else
+	{
+		// If diagonal movement is blocked, try moving in x direction only
+		gx = (int)nx;
+		gy = (int)m->scn->py;
+		if (gx >= 0 && gy >= 0 && gx < m->scn->map_w && gy < m->scn->map_h
+			&& m->scn->map[gy][gx] != '1' && m->scn->map[gy][gx] != ' ')
+			m->scn->px = nx;
+		
+		// Try moving in y direction only
+		gx = (int)m->scn->px;
+		gy = (int)ny;
+		if (gx >= 0 && gy >= 0 && gx < m->scn->map_w && gy < m->scn->map_h
+			&& m->scn->map[gy][gx] != '1' && m->scn->map[gy][gx] != ' ')
+			m->scn->py = ny;
+	}
 }
 
 static void	strafe_lr(t_mlx *m, double step)
@@ -42,16 +58,32 @@ static void	strafe_lr(t_mlx *m, double step)
 
 	nx = m->scn->px + m->scn->ply * step;
 	ny = m->scn->py - m->scn->plx * step;
+	
+	// Check both x and y movement simultaneously to prevent diagonal clipping
 	gx = (int)nx;
-	gy = (int)m->scn->py;
-	if (gx >= 0 && gy >= 0 && gx < m->scn->map_w && gy < m->scn->map_h
-		&& m->scn->map[gy][gx] != '1' && m->scn->map[gy][gx] != ' ')
-		m->scn->px = nx;
-	gx = (int)m->scn->px;
 	gy = (int)ny;
 	if (gx >= 0 && gy >= 0 && gx < m->scn->map_w && gy < m->scn->map_h
 		&& m->scn->map[gy][gx] != '1' && m->scn->map[gy][gx] != ' ')
+	{
+		m->scn->px = nx;
 		m->scn->py = ny;
+	}
+	else
+	{
+		// If diagonal movement is blocked, try moving in x direction only
+		gx = (int)nx;
+		gy = (int)m->scn->py;
+		if (gx >= 0 && gy >= 0 && gx < m->scn->map_w && gy < m->scn->map_h
+			&& m->scn->map[gy][gx] != '1' && m->scn->map[gy][gx] != ' ')
+			m->scn->px = nx;
+		
+		// Try moving in y direction only
+		gx = (int)m->scn->px;
+		gy = (int)ny;
+		if (gx >= 0 && gy >= 0 && gx < m->scn->map_w && gy < m->scn->map_h
+			&& m->scn->map[gy][gx] != '1' && m->scn->map[gy][gx] != ' ')
+			m->scn->py = ny;
+	}
 }
 
 static void	rotate_view(t_mlx *m, double a)
