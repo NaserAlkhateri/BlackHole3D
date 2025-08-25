@@ -41,8 +41,6 @@
 # define KEY_S_L      115
 # define KEY_D_L      100
 
-char	*get_next_line(int fd);
-
 typedef struct s_color
 {
 	int	r;
@@ -93,31 +91,49 @@ typedef struct s_mlx
 	t_scene	*scn;
 }	t_mlx;
 
+typedef struct s_ps
+{
+	int		fd;
+	char	*ln;
+	int		got_f;
+	int		got_c;
+	char	*acc;
+	int		r;
+	int		map_acc_result;
+	int		in_map;
+	char	*loop_res;
+}	t_ps;
+
+char		*get_next_line(int fd);
 /* parsing / map */
 const char	*parse_scene(const char *path, t_scene *scn);
-int		map_accumulate(char **acc, char *line, int *in_map);
-int		map_finalize(t_scene *scn, char *acc);
-
-const char *validate_map(t_scene *scn);
-void	init_player_from_map(t_scene *s);
+int			map_accumulate(char **acc, char *line, int *in_map);
+int			map_finalize(t_scene *scn, char *acc);
+int			parse_rgb(const char *s, t_color *out);
+void		rstrip(char *s);
+int			parse_texline(char *ln, t_scene *scn);
+const char	*handle_line(t_ps *ps, t_scene *scn);
+const char	*validate_map(t_scene *scn);
+void		init_player_from_map(t_scene *s);
+void		invalid_cub(t_ps *ps);
 
 /* textures */
 const char	*load_textures(t_mlx *m, t_scene *scn);
-void	free_textures(t_mlx *m);
+void		free_textures(t_mlx *m);
 
 /* mlx / render / hooks */
-int		init_mlx(t_mlx *m, t_scene *scn);
-void	destroy_and_exit(t_mlx *m, int code);
-void	render_frame(t_mlx *m);
-void	put_pixel(t_img *im, int x, int y, int color);
-void	set_hooks(t_mlx *m);
-int		on_key(int key, t_mlx *m);
-int		on_close(t_mlx *m);
+int			init_mlx(t_mlx *m, t_scene *scn);
+void		destroy_and_exit(t_mlx *m, int code);
+void		render_frame(t_mlx *m);
+void		put_pixel(t_img *im, int x, int y, int color);
+void		set_hooks(t_mlx *m);
+int			on_key(int key, t_mlx *m);
+int			on_close(t_mlx *m);
 
 /* raycaster */
-void	raycast_render(t_mlx *m);
+void		raycast_render(t_mlx *m);
 
 /* controls */
-int		handle_key(t_mlx *m, int key);
+int			handle_key(t_mlx *m, int key);
 
 #endif

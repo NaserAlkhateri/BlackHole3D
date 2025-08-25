@@ -30,13 +30,10 @@ const char	*load_textures(t_mlx *m, t_scene *scn)
 
 	if (!m || !scn)
 		return ("Invalid arguments");
-	
-	// Trim whitespace from texture paths
 	trimmed_no = ft_strtrim(scn->tex_no, " \t\n\r");
 	trimmed_so = ft_strtrim(scn->tex_so, " \t\n\r");
 	trimmed_we = ft_strtrim(scn->tex_we, " \t\n\r");
 	trimmed_ea = ft_strtrim(scn->tex_ea, " \t\n\r");
-	
 	if (load_one(m->mlx, &m->no, trimmed_no))
 	{
 		free(trimmed_no); free(trimmed_so); free(trimmed_we); free(trimmed_ea);

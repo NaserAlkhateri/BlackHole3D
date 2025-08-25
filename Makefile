@@ -17,7 +17,8 @@ MLX_A       := $(MLX_DIR)/libmlx.a
 
 # add load_textures.c here
 SRC_FILES := main.c init_mlx.c render.c hooks.c parse_scene.c \
-             load_textures.c map_parse.c player.c raycast.c controls.c
+             load_textures.c map_parse.c player.c raycast.c controls.c \
+			 rgb_parse.c parse_utils.c parse_textures.c
 SRCS        := $(addprefix $(SRCDIR)/,$(SRC_FILES))
 OBJS        := $(addprefix $(OBJDIR)/,$(SRC_FILES:.c=.o))
 

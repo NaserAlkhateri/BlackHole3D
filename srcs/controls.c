@@ -14,15 +14,13 @@
 
 static void	move_fb(t_mlx *m, double step)
 {
-	double nx;
-	double ny;
-	int    gx;
-	int    gy;
+	double	nx;
+	double	ny;
+	int		gx;
+	int		gy;
 
 	nx = m->scn->px + m->scn->dirx * step;
 	ny = m->scn->py + m->scn->diry * step;
-	
-	// Check both x and y movement simultaneously to prevent diagonal clipping
 	gx = (int)nx;
 	gy = (int)ny;
 	if (gx >= 0 && gy >= 0 && gx < m->scn->map_w && gy < m->scn->map_h
@@ -33,14 +31,11 @@ static void	move_fb(t_mlx *m, double step)
 	}
 	else
 	{
-		// If diagonal movement is blocked, try moving in x direction only
 		gx = (int)nx;
 		gy = (int)m->scn->py;
 		if (gx >= 0 && gy >= 0 && gx < m->scn->map_w && gy < m->scn->map_h
 			&& m->scn->map[gy][gx] != '1' && m->scn->map[gy][gx] != ' ')
 			m->scn->px = nx;
-		
-		// Try moving in y direction only
 		gx = (int)m->scn->px;
 		gy = (int)ny;
 		if (gx >= 0 && gy >= 0 && gx < m->scn->map_w && gy < m->scn->map_h

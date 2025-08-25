@@ -6,249 +6,86 @@
 /*   By: amersha <amersha@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/10 14:35:28 by amersha           #+#    #+#             */
-/*   Updated: 2025/08/23 21:30:22 by amersha          ###   ########.fr       */
+/*   Updated: 2025/08/25 19:20:00 by amersha          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/cub3d.h"
 
-static void	free_split(char **sp)
+void	init_ps(t_ps *ps, t_scene *scn)
 {
-	int	i;
-
-	if (!sp)
-		return ;
-	i = 0;
-	while (sp[i])
-	{
-		free(sp[i]);
-		i++;
-	}
-	free(sp);
+	ps->got_f = 0;
+	ps->got_c = 0;
+	ps->in_map = 0;
+	ps->acc = NULL;
+	ps->loop_res = NULL;
+	scn->tex_no = NULL;
+	scn->tex_so = NULL;
+	scn->tex_we = NULL;
+	scn->tex_ea = NULL;
 }
 
-static void	rstrip(char *s)
+void	invalid_cub(t_ps *ps)
 {
-	int	len;
-
-	if (!s)
-		return ;
-	len = (int)ft_strlen(s);
-	while (len > 0 && (s[len - 1] == '\n' || s[len - 1] == '\r'
-			|| s[len - 1] == '\t' || s[len - 1] == ' ' || s[len - 1] == '\f'
-			|| s[len - 1] == '\v'))
-	{
-		s[len - 1] = '\0';
-		len--;
-	}
+	free(ps->ln);
+	close(ps->fd);
+	free(ps->acc);
 }
 
-static int	parse_rgb(const char *s, t_color *out)
+static int	can_open(const char *path)
 {
-	char	**sp;
-	int		i;
-	int		v;
+	int	fd;
 
-	if (!s || !out)
-		return (1);
-	sp = ft_split(s, ',');
-	if (!sp || !sp[0] || !sp[1] || !sp[2] || sp[3])
-		return (free_split(sp), 1);
-	out->r = ft_atoi(sp[0]);
-	out->g = ft_atoi(sp[1]);
-	out->b = ft_atoi(sp[2]);
-	i = 0;
-	while (i < 3)
-	{
-		v = out->r;
-		if (i == 1)
-			v = out->g;
-		if (i == 2)
-			v = out->b;
-		if (v < 0 || v > 255)
-			return (free_split(sp), 1);
-		i++;
-	}
-	out->rgb = (out->r << 16) | (out->g << 8) | out->b;
-	free_split(sp);
-	return (0);
-}
-
-static int	parse_texline(char *ln, t_scene *scn)
-{
-	char	*p;
-
-	p = ln;
-	if (!ft_strncmp(p, "NO", 2) || !ft_strncmp(p, "SO", 2)
-		|| !ft_strncmp(p, "WE", 2) || !ft_strncmp(p, "EA", 2))
-	{
-		p += 2;
-		while (*p == ' ' || *p == '\t')
-			p++;
-		rstrip(p);
-		if (!*p)
-			return (-1);
-		if (!ft_strncmp(ln, "NO", 2))
-		{
-			if (scn->tex_no) return (-1);
-			scn->tex_no = ft_strdup(p);
-			return (0);
-		}
-		if (!ft_strncmp(ln, "SO", 2))
-		{
-			if (scn->tex_so) return (-1);
-			scn->tex_so = ft_strdup(p);
-			return (0);
-		}
-		if (!ft_strncmp(ln, "WE", 2))
-		{
-			if (scn->tex_we) return (-1);
-			scn->tex_we = ft_strdup(p);
-			return (0);
-		}
-		if (!ft_strncmp(ln, "EA", 2))
-		{
-			if (scn->tex_ea) return (-1);
-			scn->tex_ea = ft_strdup(p);
-			return (0);
-		}
-	}
+	fd = open(path, O_RDONLY);
+	if (fd < 0)
+		return (0);
+	close(fd);
 	return (1);
+}
+
+char	*file_check(t_ps *ps, t_scene *scn)
+{
+	if (!scn->tex_no || !scn->tex_so || !scn->tex_we || !scn->tex_ea)
+		return (free(ps->acc), "Missing texture identifier (NO/SO/WE/EA)");
+	if (!ps->got_f)
+		return (free(ps->acc), "Missing floor color (F)");
+	if (!ps->got_c)
+		return (free(ps->acc), "Missing ceiling color (C)");
+	if (!can_open(scn->tex_no))
+		return (free(ps->acc), "Cannot open texture file: NO");
+	if (!can_open(scn->tex_so))
+		return (free(ps->acc), "Cannot open texture file: SO");
+	if (!can_open(scn->tex_we))
+		return (free(ps->acc), "Cannot open texture file: WE");
+	if (!can_open(scn->tex_ea))
+		return (free(ps->acc), "Cannot open texture file: EA");
+	if (map_finalize(scn, ps->acc))
+		return ("Map parsing failed");
+	return (NULL);
 }
 
 const char	*parse_scene(const char *path, t_scene *scn)
 {
-	int		fd;
-	char	*ln;
-	int		got_f;
-	int		got_c;
-	char	*acc;
-	int		r;
-	int		map_acc_result;
-	int		in_map;
+	t_ps		ps;
+	const char	*err;
 
 	if (!path || !scn)
 		return ("Invalid arguments");
 	if (!ft_strnstr(path, ".cub", ft_strlen(path)))
 		return ("only *.cub files are allowed");
-	fd = open(path, O_RDONLY);
-	if (fd < 0)
+	ps.fd = open(path, O_RDONLY);
+	if (ps.fd < 0)
 		return ("Cannot open file");
-	got_f = 0;
-	got_c = 0;
-	in_map = 0;
-	acc = NULL;
-	scn->tex_no = NULL;
-	scn->tex_so = NULL;
-	scn->tex_we = NULL;
-	scn->tex_ea = NULL;
-	while ((ln = get_next_line(fd)))
+	init_ps(&ps, scn);
+	ps.ln = get_next_line(ps.fd);
+	while (ps.ln)
 	{
-		r = parse_texline(ln, scn);
-		if (r == 0)
-			;
-		else if (r == -1)
-		{
-			free(ln);
-			close(fd);
-			free(acc);
-			return ("Duplicate/invalid texture identifier");
-		}
-		else if (!in_map && !got_f && !ft_strncmp(ln, "F ", 2))
-		{
-			if (parse_rgb(ln + 2, &scn->floor_c))
-			{
-				free(ln);
-				close(fd);
-				free(acc);
-				return ("Invalid floor color");
-			}
-			got_f = 1;
-		}
-		else if (!in_map && !got_c && !ft_strncmp(ln, "C ", 2))
-		{
-			if (parse_rgb(ln + 2, &scn->ceil_c))
-			{
-				free(ln);
-				close(fd);
-				free(acc);
-				return ("Invalid ceiling color");
-			}
-			got_c = 1;
-		}
-		else if (!in_map && got_c && !ft_strncmp(ln, "C ", 2))
-		{
-			free(ln);
-			close(fd);
-			free(acc);
-			return ("Ceiling is duplicated!");
-		}
-		else if (!in_map && got_f && !ft_strncmp(ln, "F ", 2))
-		{
-			free(ln);
-			close(fd);
-			free(acc);
-			return ("Floor is duplicated!");
-		}
-		else
-		{
-			map_acc_result = map_accumulate(&acc, ln, &in_map);
-			if (map_acc_result == 1)
-			{
-				free(ln);
-				close(fd);
-				free(acc);
-				return ("Invalid content in map");
-			}
-		}
-		free(ln);
+		err = handle_line(&ps, scn);
+		if (err)
+			return (err);
+		free(ps.ln);
+		ps.ln = get_next_line(ps.fd);
 	}
-	close(fd);
-	if (!scn->tex_no || !scn->tex_so || !scn->tex_we || !scn->tex_ea)
-	{
-		free(acc);
-		return ("Missing texture identifier (NO/SO/WE/EA)");
-	}
-	if (!got_f)
-	{
-		free(acc);
-		return ("Missing floor color (F)");
-	}
-	if (!got_c)
-	{
-		free(acc);
-		return ("Missing ceiling color (C)");
-	}
-	/* EARLY file-existence check to avoid opening window then crashing */
-	fd = open(scn->tex_no, O_RDONLY);
-	if (fd < 0)
-	{
-		free(acc);
-		return ("Cannot open texture file: NO");
-	}
-	close(fd);
-	fd = open(scn->tex_so, O_RDONLY);
-	if (fd < 0)
-	{
-		free(acc);
-		return ("Cannot open texture file: SO");
-	}
-	close(fd);
-	fd = open(scn->tex_we, O_RDONLY);
-	if (fd < 0)
-	{
-		free(acc);
-		return ("Cannot open texture file: WE");
-	}
-	close(fd);
-	fd = open(scn->tex_ea, O_RDONLY);
-	if (fd < 0)
-	{
-		free(acc);
-		return ("Cannot open texture file: EA");
-	}
-	close(fd);
-	if (map_finalize(scn, acc))
-		return ("Map parsing failed");
-	return (NULL);
+	close(ps.fd);
+	return (file_check(&ps, scn));
 }
