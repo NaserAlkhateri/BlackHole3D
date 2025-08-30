@@ -6,7 +6,7 @@
 /*   By: amersha <amersha@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/10 14:35:28 by amersha           #+#    #+#             */
-/*   Updated: 2025/08/25 19:20:00 by amersha          ###   ########.fr       */
+/*   Updated: 2025/08/30 14:55:36 by amersha          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,10 +68,12 @@ const char	*parse_scene(const char *path, t_scene *scn)
 {
 	t_ps		ps;
 	const char	*err;
+	size_t		n;
 
 	if (!path || !scn)
 		return ("Invalid arguments");
-	if (!ft_strnstr(path, ".cub", ft_strlen(path)))
+	n = ft_strlen(path);
+	if (n < 4 || ft_strncmp(path + (n - 4), ".cub", 4) != 0)
 		return ("only *.cub files are allowed");
 	ps.fd = open(path, O_RDONLY);
 	if (ps.fd < 0)

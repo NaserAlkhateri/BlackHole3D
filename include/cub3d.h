@@ -6,7 +6,7 @@
 /*   By: amersha <amersha@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/09 16:14:33 by nalkhate          #+#    #+#             */
-/*   Updated: 2025/08/16 13:33:04 by amersha          ###   ########.fr       */
+/*   Updated: 2025/08/30 14:06:28 by amersha          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -116,6 +116,8 @@ const char	*handle_line(t_ps *ps, t_scene *scn);
 const char	*validate_map(t_scene *scn);
 void		init_player_from_map(t_scene *s);
 void		invalid_cub(t_ps *ps);
+int			is_map_char(char c);
+
 
 /* textures */
 const char	*load_textures(t_mlx *m, t_scene *scn);

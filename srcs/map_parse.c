@@ -6,169 +6,105 @@
 /*   By: amersha <amersha@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/10 22:45:00 by amersha           #+#    #+#             */
-/*   Updated: 2025/08/30 05:44:40 by amersha          ###   ########.fr       */
+/*   Updated: 2025/08/30 14:50:51 by amersha          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/cub3d.h"
 
-static int	is_map_char(char c)
+static const char	*check_top_bottom(t_scene *scn)
 {
-	if (c == ' ' || c == '0' || c == '1')
-		return (1);
-	if (c == 'N' || c == 'S' || c == 'E' || c == 'W')
-		return (1);
-	return (0);
+	int	x;
+
+	x = 0;
+	while (x < scn->map_w)
+	{
+		if (scn->map[0][x] != ' ' && scn->map[0][x] != '1')
+			return ("Map not closed at top");
+		if (scn->map[scn->map_h - 1][x] != ' ' &&
+			scn->map[scn->map_h - 1][x] != '1')
+			return ("Map not closed at bottom");
+		x++;
+	}
+	return (NULL);
 }
 
-int	map_accumulate(char **acc, char *line, int *in_map)
+static const char	*check_left_right(t_scene *scn)
 {
-	int		i;
-	char	*joined;
+	int	y;
 
-	if (!acc || !line || !in_map)
-		return (1);
-	i = 0;
-	while (line[i] && (line[i] == '\t' || line[i] == '\n'))
-		i++;
-	if (!line[i])
-		return (0);
-	i = 0;
-	while (line[i] && line[i] != '\n')
+	y = 0;
+	while (y < scn->map_h)
 	{
-		if (!is_map_char(line[i]))
-			return (*acc ? 1 : 0);
-		i++;
+		if (scn->map[y][0] != ' ' && scn->map[y][0] != '1')
+			return ("Map not closed on left");
+		if (scn->map[y][scn->map_w - 1] != ' ' &&
+			scn->map[y][scn->map_w - 1] != '1')
+			return ("Map not closed on right");
+		y++;
 	}
-	*in_map = 1;
-	if (!*acc)
-	{
-		*acc = ft_strdup(line);
-		return (*acc ? 0 : 1);
-	}
-	joined = ft_strjoin(*acc, line);
-	if (!joined)
-		return (1);
-	free(*acc);
-	*acc = joined;
-	return (0);
+	return (NULL);
 }
 
-
-static void	pad_and_copy(char **dst, char **src, int h, int w)
+static const char	*check_interior(t_scene *scn)
 {
-	int	i;
-	int	len;
-	int	j;
+	int		y;
+	int		x;
+	char	c;
 
-	i = 0;
-	while (i < h)
+	y = 1;
+	while (y < scn->map_h - 1)
 	{
-		len = (int)ft_strlen(src[i]);
-		dst[i] = (char *)ft_calloc(w + 1, 1);
-		j = 0;
-		while (j < w)
+		x = 1;
+		while (x < scn->map_w - 1)
 		{
-			if (j < len)
-				dst[i][j] = src[i][j];
-			else
-				dst[i][j] = ' ';
-			j++;
+			c = scn->map[y][x];
+			if (c != ' ' && c != '1')
+				if (scn->map[y - 1][x] == ' ' || scn->map[y + 1][x] == ' ' ||
+					scn->map[y][x - 1] == ' ' || scn->map[y][x + 1] == ' ')
+					return ("Map has interior hole");
+			x++;
 		}
-		dst[i][w] = '\0';
-		i++;
+		y++;
 	}
+	return (NULL);
 }
 
-int	map_finalize(t_scene *scn, char *acc)
+const char	*check_walls_and_holes(t_scene *scn)
 {
-	char	**rows;
-	int		i;
-	int		w;
-	int		j;
+	const char	*err;
 
-	if (!acc)
-		return (1);
-	rows = ft_split(acc, '\n');
-	free(acc);
-	if (!rows)
-		return (1);
-	i = 0;
-	w = 0;
-	while (rows[i])
+	err = check_top_bottom(scn);
+	if (err)
+		return (err);
+	err = check_left_right(scn);
+	if (err)
+		return (err);
+	return (check_interior(scn));
+}
+
+const char	*validate_map(t_scene *s)
+{
+	int	y; int	x; int	pc;
+
+	if (!s || !s->map)
+		return ("Map is not present");
+	pc = 0; y = -1;
+	while (++y < s->map_h)
 	{
-		j = (int)ft_strlen(rows[i]);
-		if (j > w)
-			w = j;
-		i++;
+		x = -1;
+		while (++x < s->map_w)
+		{
+			char c = s->map[y][x];
+			if (!is_map_char(c))
+				return ("Invalid character in map");
+			if (c == 'N' || c == 'S' || c == 'E' || c == 'W')
+				pc++;
+		}
 	}
-	scn->map_h = i;
-	scn->map_w = w;
-	scn->map = (char **)ft_calloc(scn->map_h + 1, sizeof(char *));
-	if (!scn->map)
-		return (1);
-	pad_and_copy(scn->map, rows, scn->map_h, scn->map_w);
-	i = 0;
-	while (rows[i])
-		free(rows[i++]);
-	free(rows);
-	return (0);
-}
-
-const char *validate_map(t_scene *scn)
-{
-    int player_count = 0;
-    int y, x;
-
-    if (!scn->map)
-        return ("Map is not present");
-
-    // First pass: check for invalid characters and count players
-    for (y = 0; y < scn->map_h; y++) {
-        for (x = 0; x < scn->map_w; x++) {
-            char c = scn->map[y][x];
-            if (c != ' ' && c != '0' && c != '1' &&
-                c != 'N' && c != 'S' && c != 'E' && c != 'W')
-                return ("Invalid character in map");
-            if (c == 'N' || c == 'S' || c == 'E' || c == 'W')
-                player_count++;
-        }
-    }
-
-    if (player_count == 0)
-        return ("No player start position");
-    if (player_count > 1)
-        return ("Multiple player start positions");
-
-    // Check map boundaries - allow spaces on boundaries
-    for (x = 0; x < scn->map_w; x++) {
-        if (scn->map[0][x] != ' ' && scn->map[0][x] != '1')
-            return ("Map not closed at top");
-        if (scn->map[scn->map_h-1][x] != ' ' && scn->map[scn->map_h-1][x] != '1')
-            return ("Map not closed at bottom");
-    }
-
-    for (y = 0; y < scn->map_h; y++) {
-        if (scn->map[y][0] != ' ' && scn->map[y][0] != '1')
-            return ("Map not closed on left");
-        if (scn->map[y][scn->map_w-1] != ' ' && scn->map[y][scn->map_w-1] != '1')
-            return ("Map not closed on right");
-    }
-
-    // Check for interior holes - only check non-space cells
-    for (y = 1; y < scn->map_h - 1; y++) {
-        for (x = 1; x < scn->map_w - 1; x++) {
-            char c = scn->map[y][x];
-            if (c != ' ' && c != '1') {
-                // Check all four directions
-                if (scn->map[y-1][x] == ' ' || 
-                    scn->map[y+1][x] == ' ' || 
-                    scn->map[y][x-1] == ' ' || 
-                    scn->map[y][x+1] == ' ')
-                    return ("Map has interior hole");
-            }
-        }
-    }
-
-    return (NULL);
+	if (pc == 0)
+		return ("No player start position");
+	if (pc > 1)
+		return ("Multiple player start positions");
+	return (check_walls_and_holes(s));
 }
