@@ -82,16 +82,48 @@ const char	*handle_line(t_ps *ps, t_scene *scn)
 {
 	const char	*err;
 	int			handled;
+	char		*p;
+	char		*q;
+	int			w;
+	int			h;
 
 	err = handle_tex_phase(ps, scn, &handled);
-	if (err)
+	if (err || handled)
 		return (err);
-	if (handled)
-		return (NULL);
 	err = handle_color_phase(ps, scn, &handled);
-	if (err)
+	if (err || handled)
 		return (err);
-	if (handled)
+	p = ps->ln;
+	while (*p == ' ' || *p == '\t')
+		p++;
+	if (!ps->in_map && *p == 'R' && (p[1] == ' ' || p[1] == '\t'))
+	{
+		p += 2;
+		while (*p == ' ' || *p == '\t') p++;
+		if (!ft_isdigit(*p)) return (invalid_cub(ps), "Invalid resolution");
+		w = ft_atoi(p);
+		while (ft_isdigit(*p)) p++;
+		while (*p == ' ' || *p == '\t') p++;
+		if (!ft_isdigit(*p)) return (invalid_cub(ps), "Invalid resolution");
+		h = ft_atoi(p);
+		while (ft_isdigit(*p)) p++;
+		while (*p == ' ' || *p == '\t') p++;
+		if (*p || w <= 0 || h <= 0) return (invalid_cub(ps), "Invalid resolution");
 		return (NULL);
+	}
+	if (!ps->in_map)
+	{
+		q = p;
+		while ((*q >= 'A' && *q <= 'Z')) q++;
+		if (q > p && (*q == ' ' || *q == '\t'))
+		{
+			if (!ft_strncmp(p, "NO", 2) || !ft_strncmp(p, "SO", 2)
+				|| !ft_strncmp(p, "WE", 2) || !ft_strncmp(p, "EA", 2)
+				|| !ft_strncmp(p, "S", 1) || !ft_strncmp(p, "F", 1)
+				|| !ft_strncmp(p, "C", 1))
+				return (NULL);
+			return (invalid_cub(ps), "Unknown identifier");
+		}
+	}
 	return (handle_map_phase(ps));
 }

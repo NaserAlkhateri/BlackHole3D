@@ -6,7 +6,7 @@
 /*   By: amersha <amersha@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/10 22:45:00 by amersha           #+#    #+#             */
-/*   Updated: 2025/08/23 22:00:58 by amersha          ###   ########.fr       */
+/*   Updated: 2025/08/30 05:44:40 by amersha          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,57 +24,36 @@ static int	is_map_char(char c)
 int	map_accumulate(char **acc, char *line, int *in_map)
 {
 	int		i;
-	char	*tmp;
 	char	*joined;
 
+	if (!acc || !line || !in_map)
+		return (1);
 	i = 0;
-	// Only skip tabs and newlines, not spaces
 	while (line[i] && (line[i] == '\t' || line[i] == '\n'))
 		i++;
-	
-	// If line is empty after trimming tabs and newlines
 	if (!line[i])
-	{
-		// If we've already started accumulating map data, this is an error
-		if (*acc != NULL)
-			return (1);
-		// Otherwise, it's just an empty line before the map starts
 		return (0);
-	}
-	
-	// Check if this line contains valid map characters (including spaces)
-	// We need to check each character in the line, not just the first one
 	i = 0;
 	while (line[i] && line[i] != '\n')
 	{
 		if (!is_map_char(line[i]))
-		{
-			// If we've already started accumulating map data, this is an error
-			if (*acc != NULL)
-				return (1);
-			// Otherwise, it's just a non-map line before the map starts
-			return (0);
-		}
+			return (*acc ? 1 : 0);
 		i++;
 	}
-	
 	*in_map = 1;
-	// If we get here, this is a valid map line
-	tmp = ft_strdup(line);
-	if (!tmp)
-		return (1);
 	if (!*acc)
-		joined = ft_strdup(tmp);
-	else
-		joined = ft_strjoin(*acc, tmp);
-	free(tmp);
+	{
+		*acc = ft_strdup(line);
+		return (*acc ? 0 : 1);
+	}
+	joined = ft_strjoin(*acc, line);
 	if (!joined)
 		return (1);
-	if (*acc)
-		free(*acc);
+	free(*acc);
 	*acc = joined;
 	return (0);
 }
+
 
 static void	pad_and_copy(char **dst, char **src, int h, int w)
 {
