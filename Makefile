@@ -20,6 +20,8 @@ srcs/load_textures.c \
 srcs/map_parse.c \
 srcs/player.c \
 srcs/raycast.c \
+srcs/raycast_utils.c \
+srcs/raycast_utils2.c \
 srcs/controls.c \
 srcs/rgb_parse.c \
 srcs/parse_utils.c \

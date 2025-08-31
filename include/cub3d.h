@@ -104,6 +104,64 @@ typedef struct s_ps
 	char	*loop_res;
 }	t_ps;
 
+typedef struct s_textrim
+{
+	char	*no;
+	char	*so;
+	char	*we;
+	char	*ea;
+}	t_textrim;
+
+typedef struct s_colargs
+{
+	int		x;
+	int		y0;
+	int		y1;
+	double	wallx;
+	t_img	*tex;
+}	t_colargs;
+
+typedef struct s_draw
+{
+	int		y;
+	int		line_h;
+	int		tex_x;
+	double	step;
+	double	tex_pos;
+	int		ty;
+	int		col;
+}	t_draw;
+
+typedef struct s_ray
+{
+	double	cx;
+	double	rx;
+	double	ry;
+	double	ddx;
+	double	ddy;
+	int		mapx;
+	int		mapy;
+	int		stepx;
+	int		stepy;
+	int		side;
+	double	sdistx;
+	double	sdisty;
+	double	pdist;
+	int		hh;
+	int		y0;
+	int		y1;
+	double	wallx;
+	t_img	*tex;
+}	t_ray;
+
+typedef struct s_move
+{
+	double	nx;
+	double	ny;
+	int		gx;
+	int		gy;
+}	t_move;
+
 char		*get_next_line(int fd);
 /* parsing / map */
 const char	*parse_scene(const char *path, t_scene *scn);
@@ -135,10 +193,18 @@ void		put_pixel(t_img *im, int x, int y, int color);
 void		set_hooks(t_mlx *m);
 int			on_key(int key, t_mlx *m);
 int			on_close(t_mlx *m);
-
+int			cell_free(t_scene *scn, int gx, int gy);
 /* raycaster */
 void		raycast_render(t_mlx *m);
-
+int			sample_tex_color(t_img *t, int tx, int ty);
+double		clamp_min(double v, double minv);
+double		safe_div(double v);
+int			clampi(int v, int lo, int hi);
+t_img		*pick_tex(t_mlx *m, int side, double rx, double ry);
+void		draw_column(t_mlx *m, t_colargs *a);
+void		ray_init(t_mlx *m, int x, t_ray *r);
+void		ray_setup_steps(t_mlx *m, t_ray *r);
+int			is_oob_or_wall(t_mlx *m, t_ray *r);
 /* controls */
 int			handle_key(t_mlx *m, int key);
 

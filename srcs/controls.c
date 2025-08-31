@@ -12,75 +12,50 @@
 
 #include "../include/cub3d.h"
 
+static void	apply_move(t_mlx *m, t_move *mv)
+{
+	mv->gx = (int)mv->nx;
+	mv->gy = (int)mv->ny;
+	if (cell_free(m->scn, mv->gx, mv->gy))
+	{
+		m->scn->px = mv->nx;
+		m->scn->py = mv->ny;
+		return ;
+	}
+	mv->gx = (int)mv->nx;
+	mv->gy = (int)m->scn->py;
+	if (cell_free(m->scn, mv->gx, mv->gy))
+		m->scn->px = mv->nx;
+	mv->gx = (int)m->scn->px;
+	mv->gy = (int)mv->ny;
+	if (cell_free(m->scn, mv->gx, mv->gy))
+		m->scn->py = mv->ny;
+}
+
+/* forward/backward */
 static void	move_fb(t_mlx *m, double step)
 {
-	double	nx;
-	double	ny;
-	int		gx;
-	int		gy;
+	t_move	mv;
 
-	nx = m->scn->px + m->scn->dirx * step;
-	ny = m->scn->py + m->scn->diry * step;
-	gx = (int)nx;
-	gy = (int)ny;
-	if (gx >= 0 && gy >= 0 && gx < m->scn->map_w && gy < m->scn->map_h
-		&& m->scn->map[gy][gx] != '1' && m->scn->map[gy][gx] != ' ')
-	{
-		m->scn->px = nx;
-		m->scn->py = ny;
-	}
-	else
-	{
-		gx = (int)nx;
-		gy = (int)m->scn->py;
-		if (gx >= 0 && gy >= 0 && gx < m->scn->map_w && gy < m->scn->map_h
-			&& m->scn->map[gy][gx] != '1' && m->scn->map[gy][gx] != ' ')
-			m->scn->px = nx;
-		gx = (int)m->scn->px;
-		gy = (int)ny;
-		if (gx >= 0 && gy >= 0 && gx < m->scn->map_w && gy < m->scn->map_h
-			&& m->scn->map[gy][gx] != '1' && m->scn->map[gy][gx] != ' ')
-			m->scn->py = ny;
-	}
+	mv.nx = m->scn->px + m->scn->dirx * step;
+	mv.ny = m->scn->py + m->scn->diry * step;
+	apply_move(m, &mv);
 }
 
+/* strafe left/right */
 static void	strafe_lr(t_mlx *m, double step)
 {
-	double	nx;
-	double	ny;
-	int		gx;
-	int		gy;
+	t_move	mv;
 
-	nx = m->scn->px + m->scn->plx * step;
-	ny = m->scn->py + m->scn->ply * step;
-	gx = (int)nx;
-	gy = (int)ny;
-	if (gx >= 0 && gy >= 0 && gx < m->scn->map_w && gy < m->scn->map_h
-		&& m->scn->map[gy][gx] != '1' && m->scn->map[gy][gx] != ' ')
-	{
-		m->scn->px = nx;
-		m->scn->py = ny;
-	}
-	else
-	{
-		gx = (int)nx;
-		gy = (int)m->scn->py;
-		if (gx >= 0 && gy >= 0 && gx < m->scn->map_w && gy < m->scn->map_h
-			&& m->scn->map[gy][gx] != '1' && m->scn->map[gy][gx] != ' ')
-			m->scn->px = nx;
-		gx = (int)m->scn->px;
-		gy = (int)ny;
-		if (gx >= 0 && gy >= 0 && gx < m->scn->map_w && gy < m->scn->map_h
-			&& m->scn->map[gy][gx] != '1' && m->scn->map[gy][gx] != ' ')
-			m->scn->py = ny;
-	}
+	mv.nx = m->scn->px + m->scn->plx * step;
+	mv.ny = m->scn->py + m->scn->ply * step;
+	apply_move(m, &mv);
 }
-
 
 static void	rotate_view(t_mlx *m, double a)
 {
-	double oldx;
-	double oldpx;
+	double	oldx;
+	double	oldpx;
 
 	oldx = m->scn->dirx;
 	m->scn->dirx = m->scn->dirx * cos(a) - m->scn->diry * sin(a);

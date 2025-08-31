@@ -32,3 +32,14 @@ void	set_hooks(t_mlx *m)
 	mlx_key_hook(m->win, on_key, m);
 	mlx_hook(m->win, 17, 0, on_close, m);
 }
+
+int	cell_free(t_scene *scn, int gx, int gy)
+{
+	if (gx < 0 || gy < 0)
+		return (0);
+	if (gx >= scn->map_w || gy >= scn->map_h)
+		return (0);
+	if (scn->map[gy][gx] == '1' || scn->map[gy][gx] == ' ')
+		return (0);
+	return (1);
+}

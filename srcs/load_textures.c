@@ -21,44 +21,39 @@ static int	load_one(void *mlx, t_img *im, char *path)
 	return (0);
 }
 
+static void	free_trims(t_textrim *t)
+{
+	free(t->no);
+	free(t->so);
+	free(t->we);
+	free(t->ea);
+}
+
+static const char	*ret_err_free(const char *msg, t_textrim *t)
+{
+	free_trims(t);
+	return (msg);
+}
+
 const char	*load_textures(t_mlx *m, t_scene *scn)
 {
-	char	*trimmed_no;
-	char	*trimmed_so;
-	char	*trimmed_we;
-	char	*trimmed_ea;
+	t_textrim	t;
 
 	if (!m || !scn)
 		return ("Invalid arguments");
-	trimmed_no = ft_strtrim(scn->tex_no, " \t\n\r");
-	trimmed_so = ft_strtrim(scn->tex_so, " \t\n\r");
-	trimmed_we = ft_strtrim(scn->tex_we, " \t\n\r");
-	trimmed_ea = ft_strtrim(scn->tex_ea, " \t\n\r");
-	if (load_one(m->mlx, &m->no, trimmed_no))
-	{
-		free(trimmed_no); free(trimmed_so); free(trimmed_we); free(trimmed_ea);
-		return ("Cannot open texture file: NO");
-	}
-	if (load_one(m->mlx, &m->so, trimmed_so))
-	{
-		free(trimmed_no); free(trimmed_so); free(trimmed_we); free(trimmed_ea);
-		return ("Cannot open texture file: SO");
-	}
-	if (load_one(m->mlx, &m->we, trimmed_we))
-	{
-		free(trimmed_no); free(trimmed_so); free(trimmed_we); free(trimmed_ea);
-		return ("Cannot open texture file: WE");
-	}
-	if (load_one(m->mlx, &m->ea, trimmed_ea))
-	{
-		free(trimmed_no); free(trimmed_so); free(trimmed_we); free(trimmed_ea);
-		return ("Cannot open texture file: EA");
-	}
-	
-	free(trimmed_no);
-	free(trimmed_so);
-	free(trimmed_we);
-	free(trimmed_ea);
+	t.no = ft_strtrim(scn->tex_no, " \t\n\r");
+	t.so = ft_strtrim(scn->tex_so, " \t\n\r");
+	t.we = ft_strtrim(scn->tex_we, " \t\n\r");
+	t.ea = ft_strtrim(scn->tex_ea, " \t\n\r");
+	if (load_one(m->mlx, &m->no, t.no))
+		return (ret_err_free("Cannot open texture file: NO", &t));
+	if (load_one(m->mlx, &m->so, t.so))
+		return (ret_err_free("Cannot open texture file: SO", &t));
+	if (load_one(m->mlx, &m->we, t.we))
+		return (ret_err_free("Cannot open texture file: WE", &t));
+	if (load_one(m->mlx, &m->ea, t.ea))
+		return (ret_err_free("Cannot open texture file: EA", &t));
+	free_trims(&t);
 	return (NULL);
 }
 
