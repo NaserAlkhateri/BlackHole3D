@@ -10,6 +10,8 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "../include/cub3d.h"
+
 int	is_map_char(char c)
 {
 	if (c == ' ' || c == '0' || c == '1')
@@ -17,4 +19,26 @@ int	is_map_char(char c)
 	if (c == 'N' || c == 'S' || c == 'E' || c == 'W')
 		return (1);
 	return (0);
+}
+
+int	is_player_char(char c)
+{
+	return (c == 'N' || c == 'S' || c == 'E' || c == 'W');
+}
+
+const char	*validate_row(t_scene *s, int y, int *pc)
+{
+	int		x;
+	char	c;
+
+	x = -1;
+	while (++x < s->map_w)
+	{
+		c = s->map[y][x];
+		if (!is_map_char(c))
+			return ("Invalid character in map");
+		if (is_player_char(c))
+			(*pc)++;
+	}
+	return (NULL);
 }

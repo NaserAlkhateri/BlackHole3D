@@ -85,22 +85,19 @@ const char	*check_walls_and_holes(t_scene *scn)
 
 const char	*validate_map(t_scene *s)
 {
-	int	y; int	x; int	pc;
+	int			y;
+	int			pc;
+	const char	*err;
 
 	if (!s || !s->map)
 		return ("Map is not present");
-	pc = 0; y = -1;
+	pc = 0;
+	y = -1;
 	while (++y < s->map_h)
 	{
-		x = -1;
-		while (++x < s->map_w)
-		{
-			char c = s->map[y][x];
-			if (!is_map_char(c))
-				return ("Invalid character in map");
-			if (c == 'N' || c == 'S' || c == 'E' || c == 'W')
-				pc++;
-		}
+		err = validate_row(s, y, &pc);
+		if (err)
+			return (err);
 	}
 	if (pc == 0)
 		return ("No player start position");

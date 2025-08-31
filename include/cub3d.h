@@ -121,6 +121,8 @@ const char	*handle_tex_phase(t_ps *ps, t_scene *scn, int *handled);
 const char	*handle_color_phase(t_ps *ps, t_scene *scn, int *handled);
 const char	*handle_map_phase(t_ps *ps);
 char		*skip_ws(char *p);
+int			is_player_char(char c);
+const char	*validate_row(t_scene *s, int y, int *pc);
 /* textures */
 const char	*load_textures(t_mlx *m, t_scene *scn);
 void		free_textures(t_mlx *m);

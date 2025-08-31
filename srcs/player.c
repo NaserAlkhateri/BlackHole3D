@@ -12,22 +12,8 @@
 
 #include "../include/cub3d.h"
 
-static void	set_dir_plane(t_scene *s, char c)
+static void	set_dir_plane2(t_scene *s, char c)
 {
-	if (c == 'N')
-	{
-		s->dirx = 0.0;
-		s->diry = -1.0;
-		s->plx = 0.66;
-		s->ply = 0.0;
-	}
-	if (c == 'S')
-	{
-		s->dirx = 0.0;
-		s->diry = 1.0;
-		s->plx = -0.66;
-		s->ply = 0.0;
-	}
 	if (c == 'E')
 	{
 		s->dirx = 1.0;
@@ -44,12 +30,23 @@ static void	set_dir_plane(t_scene *s, char c)
 	}
 }
 
-__attribute__((unused))
-static int	is_spawn(char c)
+static void	set_dir_plane(t_scene *s, char c)
 {
-	if (c == 'N' || c == 'S' || c == 'E' || c == 'W')
-		return (1);
-	return (0);
+	if (c == 'N')
+	{
+		s->dirx = 0.0;
+		s->diry = -1.0;
+		s->plx = 0.66;
+		s->ply = 0.0;
+	}
+	if (c == 'S')
+	{
+		s->dirx = 0.0;
+		s->diry = 1.0;
+		s->plx = -0.66;
+		s->ply = 0.0;
+	}
+	set_dir_plane2(s, c);
 }
 
 void	init_player_from_map(t_scene *s)
