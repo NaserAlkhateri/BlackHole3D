@@ -30,7 +30,6 @@ int	init_mlx(t_mlx *m, t_scene *scn)
 	m->mlx = mlx_init();
 	if (!m->mlx)
 		return (1);
-	/* NOTE: no texture loading here anymore */
 	m->win = mlx_new_window(m->mlx, WIN_W, WIN_H, "cub3D");
 	if (!m->win)
 		return (destroy_and_exit(m, 1), 1);

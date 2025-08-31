@@ -27,7 +27,6 @@ static void	free_split(char **sp)
 	free(sp);
 }
 
-
 static int	rgb_split_3(const char *s, char ***out_sp)
 {
 	char	**sp;

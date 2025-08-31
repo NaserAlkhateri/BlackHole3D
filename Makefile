@@ -26,7 +26,8 @@ srcs/parse_utils.c \
 srcs/parse_textures.c \
 srcs/map_accumulate.c \
 srcs/map_chars.c \
-srcs/map_finalize.c
+srcs/map_finalize.c \
+srcs/parse_utils2.c
 
 OBJS := $(SRCS:srcs/%.c=objs/%.o)
 

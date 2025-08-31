@@ -117,8 +117,10 @@ const char	*validate_map(t_scene *scn);
 void		init_player_from_map(t_scene *s);
 void		invalid_cub(t_ps *ps);
 int			is_map_char(char c);
-
-
+const char	*handle_tex_phase(t_ps *ps, t_scene *scn, int *handled);
+const char	*handle_color_phase(t_ps *ps, t_scene *scn, int *handled);
+const char	*handle_map_phase(t_ps *ps);
+char		*skip_ws(char *p);
 /* textures */
 const char	*load_textures(t_mlx *m, t_scene *scn);
 void		free_textures(t_mlx *m);
