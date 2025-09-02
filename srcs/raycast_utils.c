@@ -14,14 +14,17 @@
 
 t_img	*pick_tex(t_mlx *m, int side, double rx, double ry)
 {
-	if (side == 0 && rx > 0.0)
+	if (side == 0)
+	{
+		if (rx > 0.0)
+			return (&m->ea);
 		return (&m->we);
-	if (side == 0 && rx < 0.0)
-		return (&m->ea);
-	if (side == 1 && ry > 0.0)
-		return (&m->no);
-	return (&m->so);
+	}
+	if (ry > 0.0)
+		return (&m->so);
+	return (&m->no);
 }
+
 
 int
 	clampi(int v, int lo, int hi)
