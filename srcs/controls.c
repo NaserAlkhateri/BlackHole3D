@@ -6,7 +6,7 @@
 /*   By: amersha <amersha@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/11 00:35:00 by amersha           #+#    #+#             */
-/*   Updated: 2025/08/23 22:17:11 by amersha          ###   ########.fr       */
+/*   Updated: 2025/09/04 16:40:39 by amersha          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,21 +14,26 @@
 
 static void	apply_move(t_mlx *m, t_move *mv)
 {
-	mv->gx = (int)mv->nx;
-	mv->gy = (int)mv->ny;
-	if (cell_free(m->scn, mv->gx, mv->gy))
-	{
+	double	r;
+	double	sx;
+	double	sy;
+	int		gx;
+	int		gy;
+
+	r = 0.20;
+	sx = r;
+	if (mv->nx < m->scn->px)
+		sx = -r;
+	sy = r;
+	if (mv->ny < m->scn->py)
+		sy = -r;
+	gx = (int)(mv->nx + sx);
+	gy = (int)m->scn->py;
+	if (cell_free(m->scn, gx, gy))
 		m->scn->px = mv->nx;
-		m->scn->py = mv->ny;
-		return ;
-	}
-	mv->gx = (int)mv->nx;
-	mv->gy = (int)m->scn->py;
-	if (cell_free(m->scn, mv->gx, mv->gy))
-		m->scn->px = mv->nx;
-	mv->gx = (int)m->scn->px;
-	mv->gy = (int)mv->ny;
-	if (cell_free(m->scn, mv->gx, mv->gy))
+	gx = (int)m->scn->px;
+	gy = (int)(mv->ny + sy);
+	if (cell_free(m->scn, gx, gy))
 		m->scn->py = mv->ny;
 }
 

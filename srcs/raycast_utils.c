@@ -25,9 +25,7 @@ t_img	*pick_tex(t_mlx *m, int side, double rx, double ry)
 	return (&m->no);
 }
 
-
-int
-	clampi(int v, int lo, int hi)
+int	clampi(int v, int lo, int hi)
 {
 	if (v < lo)
 		return (lo);
