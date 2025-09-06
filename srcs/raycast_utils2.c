@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   raycast_utils2.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: amersha <amersha@student.42.fr>            +#+  +:+       +#+        */
+/*   By: nalkhate <nalkhate@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/10 22:45:00 by amersha           #+#    #+#             */
-/*   Updated: 2025/08/10 16:27:30 by amersha          ###   ########.fr       */
+/*   Updated: 2025/09/06 18:25:41 by nalkhate         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,11 +16,11 @@ void	draw_column(t_mlx *m, t_colargs *a)
 {
 	t_draw	d;
 
-	d.line_h = a->y1 - a->y0 + 1;
+	d.line_h = a->line_h_full;
 	d.tex_x = (int)(a->wallx * (double)a->tex->w);
 	d.tex_x = clampi(d.tex_x, 0, a->tex->w - 1);
 	d.step = (double)a->tex->h / (double)d.line_h;
-	d.tex_pos = 0.0;
+	d.tex_pos = (double)(a->y0 - a->y0_raw) * d.step;
 	d.y = a->y0;
 	while (d.y <= a->y1)
 	{

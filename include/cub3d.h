@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   cub3d.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: amersha <amersha@student.42.fr>            +#+  +:+       +#+        */
+/*   By: nalkhate <nalkhate@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/09 16:14:33 by nalkhate          #+#    #+#             */
-/*   Updated: 2025/08/30 14:06:28 by amersha          ###   ########.fr       */
+/*   Updated: 2025/09/06 18:23:24 by nalkhate         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -117,6 +117,8 @@ typedef struct s_colargs
 	int		x;
 	int		y0;
 	int		y1;
+	int		y0_raw;
+	int		line_h_full;
 	double	wallx;
 	t_img	*tex;
 }	t_colargs;

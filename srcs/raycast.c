@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   raycast.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: amersha <amersha@student.42.fr>            +#+  +:+       +#+        */
+/*   By: nalkhate <nalkhate@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/10 22:45:00 by amersha           #+#    #+#             */
-/*   Updated: 2025/08/10 16:27:30 by amersha          ###   ########.fr       */
+/*   Updated: 2025/09/06 18:38:52 by nalkhate         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,17 +37,22 @@ static void	ray_dda(t_mlx *m, t_ray *r)
 
 static void	ray_project(t_mlx *m, t_ray *r)
 {
+	int	y0_raw;
+	int	y1_raw;
+
 	if (r->side == 0)
 		r->pdist = (r->mapx - m->scn->px + (1 - r->stepx) / 2.0)
 			/ safe_div(r->rx);
 	else
-		r->pdist = (r->mapy - m->scn->py + (1 - r->stepy) / 2.0)
-			/ safe_div(r->ry);
+		r->pdist = (r->mapy - m->scn->py + (1 - r->stepy)
+				/ 2.0) / safe_div(r->ry);
 	r->hh = (int)(WIN_H / clamp_min(r->pdist, 1e-6));
-	r->y0 = -r->hh / 2 + WIN_H / 2;
+	y0_raw = -r->hh / 2 + WIN_H / 2;
+	y1_raw = r->hh / 2 + WIN_H / 2;
+	r->y0 = y0_raw;
 	if (r->y0 < 0)
 		r->y0 = 0;
-	r->y1 = r->hh / 2 + WIN_H / 2;
+	r->y1 = y1_raw;
 	if (r->y1 >= WIN_H)
 		r->y1 = WIN_H - 1;
 }
@@ -79,6 +84,8 @@ void	raycast_render(t_mlx *m)
 		a.x = x;
 		a.y0 = r.y0;
 		a.y1 = r.y1;
+		a.line_h_full = r.hh;
+		a.y0_raw = -r.hh / 2 + WIN_H / 2;
 		a.wallx = r.wallx;
 		a.tex = r.tex;
 		draw_column(m, &a);
